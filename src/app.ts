@@ -27,7 +27,7 @@ export function createApp(): Express {
 
   app.disable('x-powered-by');
   // The storefront proxies `/api/*` to this server, so the real client IP arrives in X-Forwarded-For.
-  app.set('trust proxy', 1);
+  app.set('trust proxy', env.TRUST_PROXY);
 
   app.use(
     pinoHttp({

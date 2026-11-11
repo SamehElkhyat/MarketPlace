@@ -1,0 +1,7 @@
+.env*
+test
+check-user.ts
+src/scripts
+vitest.config.ts
+eslint.config.js
+docker-compose.yml

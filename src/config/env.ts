@@ -16,6 +16,9 @@ const envSchema = z.object({
 
   MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
 
+  /** Reverse-proxy hops in front of the API (Express `trust proxy`). Tune so rate limits see the real client IP. */
+  TRUST_PROXY: z.coerce.number().int().min(0).max(5).default(1),
+
   /** Public URL of the storefront. Used to build links inside emails. */
   APP_URL: z.url().default('http://localhost:3000'),
 
