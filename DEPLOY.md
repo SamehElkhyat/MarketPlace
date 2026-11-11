@@ -1,7 +1,14 @@
 # Deploying the API to Vercel
 
-The API ships as **one Vercel Function**. `npm run build` bundles `src/index.ts` (the Express app) into `api/index.js`
-with esbuild, and `vercel.json` rewrites every path to it. Nothing here needs a server you manage.
+The API ships as **one Vercel Function**:
+
+- `api/index.js` — tiny hand-written entry. It lazily imports the bundle inside `try/catch`, so a startup failure
+  (bad env var, missing module…) is answered as readable JSON (`STARTUP_FAILED`) instead of Vercel's generic
+  "FUNCTION_INVOCATION_FAILED" page.
+- `api/_app.js` — the whole Express app, pre-bundled by esbuild (`npm run build`). **It is committed on purpose** so a
+  deploy never depends on Vercel auto-detecting a framework. Run `npm run build` and commit it after changing `src/`
+  (Vercel also rebuilds it during deploy).
+- `vercel.json` — `"framework": null`, rewrites every path to the function.
 
 ## 1. MongoDB Atlas (free M0 is enough)
 
@@ -28,7 +35,7 @@ NODE_ENV=production npm run seed -- --allow-production
 
 ## 3. Vercel project
 
-1. **Add New → Project** → import this repo. Framework preset: **Other**. Root Directory: `./`
+1. **Add New → Project** → import this repo. Framework preset: **Other** (`vercel.json` also pins `framework: null`). Root Directory: `./`
    (build/install commands, the rewrite and the function settings come from `vercel.json`; Node 22 comes from `engines`).
 2. **Environment variables** (Production). See `.env.example` for all of them; the required ones are:
 
@@ -63,3 +70,12 @@ is no CORS to configure. Deploy the API **before** the storefront — the storef
 - `check-user.ts`, tests and `src/scripts` are excluded from the deployment by `.vercelignore`.
 - Never commit `.env` (it is git-ignored). If a secret was ever pasted somewhere public, rotate it.
 - Changing a schema's indexes? Run `npm run indexes` again after deploying.
+
+## Troubleshooting
+
+| What you see | Meaning |
+|---|---|
+| JSON `STARTUP_FAILED … MONGODB_URI …` | an environment variable is missing/invalid — the message names it |
+| JSON `STARTUP_FAILED … Cannot find package 'x'` | a runtime dependency isn't in `dependencies` (not `devDependencies`) |
+| `/health` → `"db":"down"` | Atlas Network Access doesn't allow Vercel (`0.0.0.0/0`) or the URI/password is wrong |
+| Vercel's own "FUNCTION_INVOCATION_FAILED" page | the function crashed before `api/index.js` could answer — open **Deployment → Logs → Runtime Logs** and read the first error |
