@@ -34,18 +34,19 @@ export interface Seed {
 }
 
 async function loadModels() {
-  const [{ UserModel }, { ProductModel }, { OrderModel }, { InventoryLogModel }, { CouponModel }, { ShippingZoneModel }, { CategoryModel }, { BrandModel }, { PaymentEventModel, PaymentModel }, { SessionModel }] =
+  const [{ UserModel }, { ProductModel }, { OrderModel }, { InventoryLogModel }, { CouponModel }, { ShippingZoneModel }, { CategoryModel }, { BrandModel }, { PaymentModel }, { PaymentEventModel }, { SessionModel }] =
     await Promise.all([
-      import('../../src/modules/users/user.model'),
-      import('../../src/modules/products/product.model'),
-      import('../../src/modules/orders/order.model'),
-      import('../../src/modules/inventory/inventory.models'),
-      import('../../src/modules/coupons/coupon.model'),
-      import('../../src/modules/shipping/shipping-zone.model'),
-      import('../../src/modules/categories/category.model'),
-      import('../../src/modules/brands/brand.model'),
-      import('../../src/modules/payments/payment.models'),
-      import('../../src/modules/auth/auth.models'),
+      import('../../models/User'),
+      import('../../models/Product'),
+      import('../../models/Order'),
+      import('../../models/InventoryLog'),
+      import('../../models/Coupon'),
+      import('../../models/ShippingZone'),
+      import('../../models/Category'),
+      import('../../models/Brand'),
+      import('../../models/Payment'),
+      import('../../models/PaymentEvent'),
+      import('../../models/Session'),
     ]);
   return { UserModel, ProductModel, OrderModel, InventoryLogModel, CouponModel, ShippingZoneModel, CategoryModel, BrandModel, PaymentEventModel, PaymentModel, SessionModel };
 }
@@ -69,12 +70,12 @@ export async function bootstrap(envOverrides: Record<string, string> = {}): Prom
   process.env['MONGODB_URI'] = replSet.getUri('marketplace_test');
   Object.assign(process.env, envOverrides);
 
-  const { createApp } = await import('../../src/app');
-  const { connectDb, disconnectDb } = await import('../../src/lib/db');
-  const { resetRateLimits } = await import('../../src/http/middleware/rate-limit');
-  const { emailTransport } = await import('../../src/modules/notifications/email-transport');
-  const { categoryService } = await import('../../src/modules/categories/category.service');
-  const { productService } = await import('../../src/modules/products/product.service');
+  const { createApp } = await import('../../app');
+  const { connectDb, disconnectDb } = await import('../../config/db');
+  const { resetRateLimits } = await import('../../middleware/rateLimit.middleware');
+  const { emailTransport } = await import('../../services/email/emailTransport');
+  const { categoryService } = await import('../../services/category.service');
+  const { productService } = await import('../../services/product.service');
 
   await connectDb();
   const models = await loadModels();

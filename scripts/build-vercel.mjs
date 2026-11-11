@@ -9,7 +9,7 @@
 import { build } from 'esbuild';
 
 await build({
-  entryPoints: ['src/index.ts'],
+  entryPoints: ['handler.ts'],
   outfile: 'api/_app.js',
   bundle: true,
   platform: 'node',

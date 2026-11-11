@@ -1,7 +1,9 @@
 .env*
 test
 check-user.ts
-src/scripts
+scripts/seed.ts
+scripts/seedData.ts
+scripts/dev-db.ts
+scripts/sync-indexes.ts
 vitest.config.ts
 eslint.config.js
-docker-compose.yml

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { mergeAttributes } from '../../src/modules/categories/category.service';
-import type { AttributeDef } from '../../src/modules/categories/category.model';
-import { validateAndDerive } from '../../src/modules/products/product.builder';
-import { normalizeText, tokenize } from '../../src/lib/text';
+import { mergeAttributes } from '../../services/category.service';
+import type { AttributeDef } from '../../models/Category';
+import { validateAndDerive } from '../../services/productBuilder.service';
+import { normalizeText, tokenize } from '../../utils/text';
 
 const attr = (key: string, over: Partial<AttributeDef> = {}): AttributeDef => ({
   key,

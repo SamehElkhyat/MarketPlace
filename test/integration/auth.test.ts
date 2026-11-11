@@ -162,7 +162,7 @@ describe('e-mail verification & password reset', () => {
     await h.http().post('/api/auth/forgot-password').send({ email: s.email });
     await new Promise((r) => setTimeout(r, 50));
     const token = tokenFromEmail();
-    const { AuthTokenModel } = await import('../../src/modules/auth/auth.models');
+    const { AuthTokenModel } = await import('../../models/AuthToken');
     await AuthTokenModel.updateMany({ type: 'password_reset' }, { $set: { expiresAt: new Date(Date.now() - 1000) } });
     await h.http().post('/api/auth/reset-password').send({ token, password: 'NewPassw0rd!' }).expect(400);
   });

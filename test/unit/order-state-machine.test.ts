@@ -6,8 +6,8 @@ import {
   ORDER_STATUSES,
   restoresStock,
   type OrderStatus,
-} from '../../src/modules/orders/order-state-machine';
-import { AppError } from '../../src/lib/errors';
+} from '../../services/orderStateMachine';
+import { ApiError } from '../../utils/ApiError';
 
 const cod = (status: OrderStatus, paymentStatus: 'unpaid' | 'paid' = 'unpaid') => ({ status, paymentStatus });
 
@@ -62,13 +62,13 @@ describe('order state machine', () => {
     expect(canTransition(cod('delivered', 'paid'), 'refunded', 'admin')).toBe(true);
   });
 
-  it('assertTransition throws an INVALID_TRANSITION AppError with the allowed moves', () => {
+  it('assertTransition throws an INVALID_TRANSITION ApiError with the allowed moves', () => {
     try {
       assertTransition(cod('shipped'), 'confirmed', 'admin');
       expect.unreachable();
     } catch (error) {
-      expect(error).toBeInstanceOf(AppError);
-      const e = error as AppError;
+      expect(error).toBeInstanceOf(ApiError);
+      const e = error as ApiError;
       expect(e.code).toBe('INVALID_TRANSITION');
       expect(e.status).toBe(422);
       expect((e.details as { allowed: string[] }).allowed).toEqual(['delivered']);

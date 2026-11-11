@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['test/**/*.test.ts', 'src/**/*.test.ts'],
+    include: ['test/**/*.test.ts'],
     // Integration tests boot an in-memory MongoDB replica set (first run downloads the binary).
     testTimeout: 30_000,
     hookTimeout: 120_000,
@@ -17,6 +17,6 @@ export default defineConfig({
       PAYMENTS_MOCK_ENABLED: 'true',
       PAYMENTS_MOCK_SECRET: 'mock-webhook-secret',
     },
-    coverage: { provider: 'v8', include: ['src/**'], exclude: ['src/scripts/**'] },
+    coverage: { provider: 'v8', include: ['config/**', 'controllers/**', 'middleware/**', 'models/**', 'routes/**', 'services/**', 'utils/**'] },
   },
 });

@@ -1,0 +1,25 @@
+import type { Request } from 'express';
+import { toObjectId } from '../utils/objectId';
+import { logger } from '../config/logger';
+import { AuditLogModel } from '../models/AuditLog';
+
+export interface AuditEntry {
+  action: string;
+  entity: string;
+  entityId?: string;
+  meta?: Record<string, unknown>;
+}
+
+/** "Who did what, when" — written for every mutating admin action. Never blocks the request on failure. */
+export async function recordAudit(req: Request, entry: AuditEntry): Promise<void> {
+  if (!req.auth) return;
+  try {
+    await AuditLogModel.create({
+      actorId: toObjectId(req.auth.userId),
+      ...entry,
+      ...(req.ip ? { ip: req.ip } : {}),
+    });
+  } catch (error) {
+    logger.error({ err: error, entry }, 'failed to write audit log');
+  }
+}

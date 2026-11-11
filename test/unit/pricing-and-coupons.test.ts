@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { evaluateCoupon } from '../../src/modules/coupons/coupon-rules';
-import { calculateTotals } from '../../src/modules/orders/pricing';
-import { percentOf } from '../../src/lib/money';
+import { evaluateCoupon } from '../../services/couponRules.service';
+import { calculateTotals } from '../../services/pricing.service';
+import { percentOf } from '../../utils/money';
 
 describe('calculateTotals', () => {
   it('sums integer piasters exactly (no float drift)', () => {

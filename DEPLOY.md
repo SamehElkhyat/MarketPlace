@@ -6,7 +6,7 @@ The API ships as **one Vercel Function**:
   (bad env var, missing module…) is answered as readable JSON (`STARTUP_FAILED`) instead of Vercel's generic
   "FUNCTION_INVOCATION_FAILED" page.
 - `api/_app.js` — the whole Express app, pre-bundled by esbuild (`npm run build`). **It is committed on purpose** so a
-  deploy never depends on Vercel auto-detecting a framework. Run `npm run build` and commit it after changing `src/`
+  deploy never depends on Vercel auto-detecting a framework. Run `npm run build` and commit it after changing any source file
   (Vercel also rebuilds it during deploy).
 - `vercel.json` — `"framework": null`, rewrites every path to the function.
 
@@ -67,7 +67,7 @@ is no CORS to configure. Deploy the API **before** the storefront — the storef
 - **Rate limiting & client IP.** `TRUST_PROXY=1` assumes one proxy hop. If every user appears to share one IP in logs
   (so limits trigger for everyone), raise it to `2`.
 - **Hobby plan** is for personal, non-commercial use; function duration is capped (`vercel.json` asks for 30 s).
-- `check-user.ts`, tests and `src/scripts` are excluded from the deployment by `.vercelignore`.
+- `check-user.ts`, the tests and the dev scripts (`seed`, `dev-db`, `sync-indexes`) are excluded from the deployment by `.vercelignore`.
 - Never commit `.env` (it is git-ignored). If a secret was ever pasted somewhere public, rotate it.
 - Changing a schema's indexes? Run `npm run indexes` again after deploying.
 

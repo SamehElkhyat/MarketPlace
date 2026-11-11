@@ -16,5 +16,22 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "test", "vitest.config.ts", "eslint.config.js"]
+  "include": [
+    "server.ts",
+    "app.ts",
+    "handler.ts",
+    "config",
+    "controllers",
+    "middleware",
+    "models",
+    "routes",
+    "services",
+    "utils",
+    "validators",
+    "types",
+    "scripts",
+    "test",
+    "vitest.config.ts",
+    "eslint.config.js"
+  ]
 }
