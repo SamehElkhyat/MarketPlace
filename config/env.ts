@@ -60,10 +60,29 @@ const envSchema = z.object({
 
 export type Env = z.infer<typeof envSchema>;
 
+/**
+ * Hosting dashboards make copy-paste slips easy: stray spaces/newlines, or values wrapped in quotes
+ * (`"https://…"`). Normalise those before validating so they don't take the whole API down.
+ */
+function normalise(source: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const clean: NodeJS.ProcessEnv = {};
+  for (const [key, raw] of Object.entries(source)) {
+    if (raw === undefined) continue;
+    const value = raw.trim();
+    clean[key] = /^(["']).*\1$/s.test(value) ? value.slice(1, -1).trim() : value;
+  }
+  return clean;
+}
+
 export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
-  const parsed = envSchema.safeParse(source);
+  const parsed = envSchema.safeParse(normalise(source));
   if (!parsed.success) {
-    const details = parsed.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`).join('\n');
+    const details = parsed.error.issues
+      .map((i) => {
+        const hint = i.message === 'Invalid URL' ? ' (must be a full https:// URL — leave it empty or delete the variable if unused)' : '';
+        return `  - ${i.path.join('.')}: ${i.message}${hint}`;
+      })
+      .join('\n');
     throw new Error(`Invalid environment configuration:\n${details}`);
   }
   return parsed.data;

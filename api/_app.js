@@ -15,10 +15,22 @@ var __export = (target, all) => {
 
 // config/env.ts
 import { z } from "zod";
+function normalise(source) {
+  const clean = {};
+  for (const [key, raw] of Object.entries(source)) {
+    if (raw === void 0) continue;
+    const value = raw.trim();
+    clean[key] = /^(["']).*\1$/s.test(value) ? value.slice(1, -1).trim() : value;
+  }
+  return clean;
+}
 function loadEnv(source = process.env) {
-  const parsed = envSchema.safeParse(source);
+  const parsed = envSchema.safeParse(normalise(source));
   if (!parsed.success) {
-    const details = parsed.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`).join("\n");
+    const details = parsed.error.issues.map((i) => {
+      const hint = i.message === "Invalid URL" ? " (must be a full https:// URL \u2014 leave it empty or delete the variable if unused)" : "";
+      return `  - ${i.path.join(".")}: ${i.message}${hint}`;
+    }).join("\n");
     throw new Error(`Invalid environment configuration:
 ${details}`);
   }
