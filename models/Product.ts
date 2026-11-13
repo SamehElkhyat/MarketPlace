@@ -59,13 +59,18 @@ export interface ProductAttrs {
 
 const localized = { ar: { type: String, default: '' }, en: { type: String, default: '' } };
 
-const variantSchema = new Schema<Variant>({
-  sku: { type: String, required: true, trim: true, uppercase: true },
-  optionValues: { type: Schema.Types.Mixed, default: {} },
-  price: { type: Number, required: true, min: 0, validate: Number.isInteger },
-  compareAtPrice: { type: Number, min: 0, validate: Number.isInteger },
-  stock: { type: Number, required: true, min: 0, default: 0, validate: Number.isInteger },
-});
+const variantSchema = new Schema<Variant>(
+  {
+    sku: { type: String, required: true, trim: true, uppercase: true },
+    optionValues: { type: Schema.Types.Mixed, default: {} },
+    price: { type: Number, required: true, min: 0, validate: Number.isInteger },
+    compareAtPrice: { type: Number, min: 0, validate: Number.isInteger },
+    stock: { type: Number, required: true, min: 0, default: 0, validate: Number.isInteger },
+  },
+  // `minimize` is a per-schema option: the parent's `minimize: false` does not reach sub-schemas, so without
+  // this a single-variant product (no options) is stored WITHOUT `optionValues` and clients receive undefined.
+  { minimize: false },
+);
 
 const productSchema = new Schema<ProductAttrs>(
   {

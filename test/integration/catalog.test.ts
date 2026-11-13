@@ -42,6 +42,26 @@ describe('dynamic categories: product forms are validated against the category d
     expect(product!.slug).toBe('linen-shirt');
   });
 
+  it('a single-variant product (no options) keeps an empty optionValues instead of losing the field', async () => {
+    // Regression: Mongoose's `minimize` dropped the empty object, clients got `undefined` and the admin edit form crashed.
+    const created = await createProduct({ options: [], variants: [{ sku: 'PLAIN-1', optionValues: {}, price: 25_000, stock: 3 }] });
+    expect(created.status).toBe(201);
+
+    const admin = await h.admin();
+    const read = await h.http().get(`/api/admin/products/${created.body.product._id}`).set(h.api.authed(admin.token));
+    expect(read.status).toBe(200);
+    expect(read.body.product.variants[0].optionValues).toEqual({});
+
+    // …and it survives an edit (the update goes through an aggregation pipeline, a different write path).
+    const updated = await h
+      .http()
+      .put(`/api/admin/products/${created.body.product._id}`)
+      .set(h.api.authed(admin.token))
+      .send({ title: { ar: 'عادي', en: 'Plain tee' }, categoryId: seed.menId, options: [], variants: [{ sku: 'PLAIN-1', optionValues: {}, price: 26_000, stock: 3 }], status: 'draft' });
+    expect(updated.status).toBe(200);
+    expect(updated.body.product.variants[0]).toMatchObject({ optionValues: {}, price: 26_000 });
+  });
+
   it('rejects options/values the category does not allow, with field-level errors', async () => {
     const res = await createProduct({ options: [{ key: 'size', values: ['XXXL'] }, { key: 'color', values: ['sand'] }], variants: [variant('S1', 'XXXL', 1000, 1)] });
     expect(res.status).toBe(422);
